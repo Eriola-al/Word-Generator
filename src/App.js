@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import { useState,  useRef } from 'react';
+import styled, { css } from 'styled-components';
 
 const Background = styled.div`
     width: 100vw;
@@ -44,95 +44,59 @@ const Tag = styled.span.attrs()`
     padding: 5px;
     display: flex;
     gap: 5px;
-    background-color: lightpink;
+    background-color: white;
+    font-weight: bold;
+    ${props => props.active && css`
+      background-color: chocolate;
+    `}
 `
-
+const getRandomWord = (min, max) => {
+  return Math.floor(Math.random() * (max - min + 1) + min)
+};
 
 function App() {
 
-  //written words in textarea
+  const ref = useRef({});
+
   const [input, setInput] = useState('');
-  //number of times the iteration happens
-  //const [counter, setCounter] = useState([1, 2, 3, 4, 5]);
-  //index of a word from words
-  const [index, setIndex] = useState(0);
-
-
+  const [activeIndex, setActiveIndex] = useState(null);
 
   const handleChange = (e) => {
     setInput(e.target.value);
   };
- 
 
-
-  //event to trigger 'clear input' and start colorchange animation
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      document.getElementById("text").value = "";
-    }
-  };
-
-
-
-
-  //show input seperate when divided
   const words = input.split(',');
-
-
-
-
-
-  //show nothing if no input entered
-
-  if(words.length !== 0) {
-    words.pop()
-  }
-  console.log('input',input)
-  console.log('word',words)
-
-
-
-
-  //get random Index Value
-  let randomIndex = words[Math.floor(Math.random() * words.length)];
-
-
-
-  //timeout function to change color background as per counter accordingly
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      //this will iterate to the next word[index] after 2 sec
-     changeBgColor();
-    }, 2000);
-
-    return () => clearTimeout(timeout);
-  },[{/*index,counter*/}]);
   
+  //recursive function to iterate all over written words as per ms set in timeout 
+  const iterateWords = (index = 0, count) => {
+    if (count > ref.current.maxCount) return
 
+    if(index === words.length) index = 0;
 
-  //function changeWord iterate
-  function changeBgColor() {
-    if(index >=0 && index < words.length-1){
-      document.getElementById('wordsContainer' + index).style.background = 'aqua';
-    }
-    setIndex(index + 1);
+    setTimeout(() => {
+      setActiveIndex(index);
+      iterateWords(index + 1, count + 1);
+    }, 200);
   };
 
-
+  //function to stop at a random word index 
+  const changeColorHandler = () => {
+    ref.current.maxCount = getRandomWord(1,10);
+    iterateWords(0, activeIndex);
+  }
+    
 
   return (
     <Background>
       <Title thin={550}>Insert your words and seperate them by comma.
         <SubTitle small='20px'>Press Enter to see the chosen word of the day!</SubTitle>
       </Title>
-      <Textarea rows='5' cols='70' placeholder='Write your words..' onKeyUp={handleKeyPress} id="text" onChange={handleChange} />
+      <Textarea rows='5' cols='70' placeholder='Write your words..' onKeyDown={changeColorHandler} id="text" onChange={handleChange} />
       <Tags id="wordsContainer">
         {words.map((word, index) => {
-          console.log(word,index)
-          return (
-            <Tag key={index}>{word}</Tag>
-          ) 
-        }
+          if (word === '') return;
+          return <Tag active={index === activeIndex} key={index}>{word}</Tag>
+          }
         )}
       </Tags>
     </Background>
