@@ -85,16 +85,21 @@ function App() {
     iterateWords(0, activeIndex);
   }
     
+  const keyPressHandler = (e) => {
+    if(e.key === 'Enter') {
+      document.getElementById("text").value = "";
+      changeColorHandler();
+    }
+  }
 
   return (
     <Background>
       <Title thin={550}>Insert your words and seperate them by comma.
         <SubTitle small='20px'>Press Enter to see the chosen word of the day!</SubTitle>
       </Title>
-      <Textarea rows='5' cols='70' placeholder='Write your words..' onKeyDown={changeColorHandler} id="text" onChange={handleChange} />
+      <Textarea rows='5' cols='70' placeholder='Write your words..' onKeyUp={keyPressHandler} id="text" onChange={handleChange} />
       <Tags id="wordsContainer">
         {words.map((word, index) => {
-          if (word === '') return;
           return <Tag active={index === activeIndex} key={index}>{word}</Tag>
           }
         )}
