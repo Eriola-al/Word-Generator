@@ -84,12 +84,18 @@ function App() {
     ref.current.maxCount = getRandomWord(1,10);
     iterateWords(0, activeIndex);
   }
-    
+  
+  //event handler to trigger changeColor function and clear inputi in textarea 
   const keyPressHandler = (e) => {
     if(e.key === 'Enter') {
       document.getElementById("text").value = "";
       changeColorHandler();
     }
+  }
+  
+  //remove the empty tag showing in the initial render 
+  if(words.length === 1){
+    words.pop();
   }
 
   return (
